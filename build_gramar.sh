@@ -1,10 +1,10 @@
 #!/bin/bash
 
-rm -r build/*
+#rm -r build/*
 
-bnfc --functor --makefile -o build/ Instant.cf 
+bnfc --functor --makefile -o ./ Instant.cf 
 
-cd build
+#cd build
 make
 
 

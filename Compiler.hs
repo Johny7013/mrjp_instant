@@ -31,7 +31,7 @@ putStrV :: Verbosity -> String -> IO ()
 putStrV v s = when (v > 1) $ putStrLn s
 
 runFile :: (Show a) => Verbosity -> ParseFun a -> Lang -> FilePath -> IO ()
-runFile v p l f = putStrLn f >> readFile f >>= run v p l
+runFile v p l f = readFile f >>= run v p l
 
 run :: (Show a) => Verbosity -> ParseFun a -> Lang -> String -> IO ()
 run v p l s = let ts = myLLexer s in case p ts of
@@ -40,8 +40,9 @@ run v p l s = let ts = myLLexer s in case p ts of
                            putStrV v $ show ts
                            putStrLn s
                            exitFailure
-            Ok  tree -> do putStrLn "\nParse Successful!"
-                           showTree v tree
+            Ok  tree -> do
+                           -- putStrLn "\nParse Successful!"
+                           -- showTree v tree
                            case l of
                              JVM -> JVM.compile tree
                              otherwise -> LLVM.compile tree
@@ -71,7 +72,7 @@ main = do
   args <- getArgs
   case args of
     ["--help"] -> usage
-    [] -> getContents >>= run 2 pProgram Empty
+    -- [] -> getContents >>= run 2 pProgram Empty
     "-jvm":fs -> mapM_ (runFile 2 pProgram JVM) fs
     "-llvm":fs -> mapM_ (runFile 2 pProgram LLVM) fs
     otherwise -> exitFailure

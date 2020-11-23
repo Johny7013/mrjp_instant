@@ -66,19 +66,19 @@ add_local (SExp _ expr) = do
 
 count_stack_depth :: [Stmt a] -> CompilerMonad [Stmt a]
 count_stack_depth stmts =
-  let (optimized_stmts, stack_depths) = unzip $ map count_stmt_depth stmts
+  let (optimized_stmts, stack_depths) = unzip $ map optimize_stmt_depth stmts
   in do
     tell [limit_stack ++ show (maximum stack_depths)]
     return optimized_stmts
 
--- change name
-count_stmt_depth :: Stmt a -> (Stmt a, Int)
-count_stmt_depth (SAss a ident expr) =
+-- optimizes stmt, returns optimized stmt and depth of stmt calculation
+optimize_stmt_depth :: Stmt a -> (Stmt a, Int)
+optimize_stmt_depth (SAss a ident expr) =
   let (new_expr, depth) = count_expr_depth expr
   in (SAss a ident new_expr, depth)
-count_stmt_depth (SExp a expr) =
+optimize_stmt_depth (SExp a expr) =
   let (new_expr, depth) = count_expr_depth expr
-  in (SExp a new_expr, depth + 1) -- to check if 1 is necessary
+  in (SExp a new_expr, depth + 1)
 
 count_expr_depth :: Exp a -> (Exp a, Int)
 count_expr_depth (ExpAdd a expr_left expr_right) = count_bin_expr_depth_commutative expr_left expr_right (ExpAdd a)
@@ -129,9 +129,9 @@ emitExpr (ExpVar _ ident) = do
   tell [show $ Load $ env M.! ident]
 
 
-prog_beggining :: String
-prog_beggining = unlines [
-  ".class public Instant",
+prog_beggining :: String -> String
+prog_beggining className = unlines [
+  ".class public " ++ className,
   ".super java/lang/Object",
   "",
   "; standard initializer",
@@ -173,7 +173,7 @@ runJVMCompiler (Prog _ stmts) =
   let result = compileStmts stmts
   in unlines $ addTabsBeginning result
 
-compile :: Program a -> IO()
-compile tree =
+compile :: Program a -> String -> IO()
+compile tree baseName =
   let compiled_tree = runJVMCompiler tree
-  in putStrLn $ unlines [prog_beggining, compiled_tree, prog_end]
+  in putStrLn $ unlines [prog_beggining baseName, compiled_tree, prog_end]

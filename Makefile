@@ -1,12 +1,12 @@
 all:
-	happy -gca ParInstant.y
-	alex -g LexInstant.x
-	ghc --make TestInstant.hs -o TestInstant
-	ghc --make Compiler.hs JVM.hs LLVM.hs -o ../Compiler
+	mkdir -p build
+	bnfc --functor -o ./build ./src/Instant.cf 
+	happy -gca ./build/ParInstant.y
+	alex -g ./build/LexInstant.x
+	cp ./src/Compiler.hs ./src/JVM.hs ./src/LLVM.hs ./aux/Makefile ./build
+	make -C build
 
 clean:
-	-rm -f *.log *.aux *.hi *.o *.dvi
-
-distclean: clean
-	-rm -f DocInstant.* LexInstant.* ParInstant.* LayoutInstant.* SkelInstant.* PrintInstant.* TestInstant.* AbsInstant.* TestInstant ErrM.* SharedString.* ComposOp.* Instant.dtd XMLInstant.* Compiler.* JVM.* LLVM.*
+	-rm Compiler
+	-rm -rf build
 	

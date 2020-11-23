@@ -1,0 +1,16 @@
+#!/bin/bash
+# $1 - program to compile
+
+COMPILER="./Compiler"
+FILE_DIR=$(dirname $1)
+FILE_NAME=$(basename $1)
+FILE_NAME_WITHOUT_EXT="${FILE_NAME%.*}"
+
+if [[ ! -f $COMPILER ]]; then
+	echo "No $COMPILER in the directory. Run 'make'"
+    exit 1
+fi
+
+
+./Compiler -llvm $1 > $FILE_DIR/$FILE_NAME_WITHOUT_EXT.ll
+llvm-as $FILE_DIR/$FILE_NAME_WITHOUT_EXT.ll -o $FILE_DIR/$FILE_NAME_WITHOUT_EXT.bc > /dev/null

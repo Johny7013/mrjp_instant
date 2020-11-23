@@ -1,0 +1,16 @@
+#!/bin/bash
+# $1 - program to compile
+
+COMPILER="./Compiler"
+FILE_DIR=$(dirname $1)
+FILE_NAME=$(basename $1)
+FILE_NAME_WITHOUT_EXT="${FILE_NAME%.*}"
+
+if [[ ! -f $COMPILER ]]; then
+	echo "No $COMPILER in the directory. Run 'make'"
+    exit 1
+fi
+
+
+./Compiler -jvm $1 > $FILE_DIR/$FILE_NAME_WITHOUT_EXT.j
+java -jar ./lib/jasmin.jar -d $FILE_DIR $FILE_DIR/$FILE_NAME_WITHOUT_EXT.j > /dev/null

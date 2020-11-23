@@ -12,7 +12,6 @@ type CompilerState = (Loc, M.Map Ident Loc)
 type CompilerResult = [String]
 type CompilerMonad = RWS () CompilerResult CompilerState
 
---
 data Instruction =
   Store Loc |
   Load Loc |
@@ -26,8 +25,6 @@ data Instruction =
 
 predefined_indexes :: [Int]
 predefined_indexes = [0, 1, 2, 3]
--- emitIns :: String -> Loc -> Val -> Val -> String
--- emitIns op l v1 v2 = show (L l) ++ " = " ++ op ++ " i32 " ++ show v1 ++ ", " ++ show v2
 
 instance Show Instruction where
   show (Store l)
@@ -47,7 +44,6 @@ instance Show Instruction where
   show Sub = "isub"
   show Mul = "imul"
   show Div = "idiv"
---
 
 emitStmts :: [Stmt a] -> CompilerMonad ()
 emitStmts stmts = do
@@ -82,9 +78,8 @@ count_stmt_depth (SAss a ident expr) =
   in (SAss a ident new_expr, depth)
 count_stmt_depth (SExp a expr) =
   let (new_expr, depth) = count_expr_depth expr
-  in (SExp a new_expr, depth + 1) -- to check if 1 is neccesary
+  in (SExp a new_expr, depth + 1) -- to check if 1 is necessary
 
--- remove those expr at the beginning of the argument
 count_expr_depth :: Exp a -> (Exp a, Int)
 count_expr_depth (ExpAdd a expr_left expr_right) = count_bin_expr_depth_commutative expr_left expr_right (ExpAdd a)
 count_expr_depth (ExpSub a expr_left expr_right) = count_bin_expr_depth_noncommutative expr_left expr_right (ExpSub a)
@@ -134,7 +129,6 @@ emitExpr (ExpVar _ ident) = do
   tell [show $ Load $ env M.! ident]
 
 
-
 prog_beggining :: String
 prog_beggining = unlines [
   ".class public Instant",
@@ -153,7 +147,7 @@ prog_beggining = unlines [
 
 prog_end :: String
 prog_end = unlines [
-  "    return",
+  tab ++ "return",
   ".end method"
   ]
 
